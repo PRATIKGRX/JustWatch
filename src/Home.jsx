@@ -46,10 +46,20 @@ const Home = () => {
   const testMovies = movies[4];
   console.log(testMovies);
   const scrollRef = useRef(null);
+  const scrollRef1 = useRef(null);
   const scroll = (direction) => {
     if (scrollRef.current) {
       const scrollAmount = 900;
       scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+  const scroll1 = (direction) => {
+    if (scrollRef1.current) {
+      const scrollAmount = 900;
+      scrollRef1.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
       });
@@ -254,7 +264,7 @@ const Home = () => {
               <div className="flex justify-between mt-6">
                 <div>Watched on Netflix on 00/00/0000</div>
                 <div className="flex gap-4">
-                  <p>helpful?</p>
+                  <p>Helpful?</p>
                   <button
                     onClick={() => {
                       setLike((prevState) => prevState + 1);
@@ -269,6 +279,41 @@ const Home = () => {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="relative flex mt-12 group">
+          <div ref={scrollRef1} className="flex overflow-x-auto gap-6 scrollbar-hide">
+                  {movies.map((movie,index)=>{
+                    return(
+                      <div key={index} className="relative min-h-[180px] min-w-[380px] rounded-xl px-4 py-4 flex flex-col justify-between" style={{
+                        backgroundImage: `
+                       linear-gradient(to right, rgba(16, 16, 16,0.99), rgba(0,0,0,0.6), rgba(47, 45, 46,1)),
+                       url(${movie?.Poster})
+                     `,
+                        backgroundPosition: "top",
+                      }}>
+                    <p className="text-[#898888]">{movie.Year} | 32min</p>
+                    <h5 className="text-xl font-bold">{movie.Title}</h5>
+                    <p className="text-[#898888] text-lg">(Season-1)</p> 
+                    <button className="bg-[#6E6E6E] py-2 font-bold rounded-lg">Watch Now</button>
+                    <p className="absolute right-[-4px] top-[-4px] px-8 py-2 bg-white rounded-tl-none rounded-tr-xl rounded-br-none rounded-bl-xl text-lg font-bold text-[#5E5C5D]">Trending Today</p>
+                  </div>
+                    )
+                    
+                  })}
+            
+          </div>
+          <button
+              onClick={() => scroll1("right")}
+              className="opacity-0 group-hover:opacity-90 transition-opacity absolute right-0 bg-[#282828] text-white px-2 h-full"
+            >
+              <i className=" fa-solid fa-chevron-right"></i>
+            </button>
+            <button
+              onClick={() => scroll1("left")}
+              className="opacity-0 group-hover:opacity-90 transition-opacity absolute left-0  bg-[#282828] text-white px-2 h-full"
+            >
+              <i className="fa-solid fa-chevron-left"></i>
+            </button>
           </div>
         </section>
       </main>
