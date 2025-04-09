@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import { useEffect, useState, useRef } from "react";
+import profImage from "./assets/prof.jpg";
 
 const Home = () => {
   const today = new Date();
@@ -28,44 +29,96 @@ const Home = () => {
     const fetchMovies = async () => {
       try {
         const response = await fetch(
-          "https://www.omdbapi.com/?apikey=7b316e6d&s=action&page=1"
+          `https://www.omdbapi.com/?apikey=7b316e6d&s=action&page=1`
         );
-        if (response.ok) {
-          const data = await response.json();
-          setMovies((prevState) => [...prevState, ...data.Search]);
-        } else {
-          console.error("Failed to fetch movies:", response.statusText);
+        const data = await response.json();
+
+        if (data.Response === "False") {
+          console.error("OMDb API Error:", data.Error);
+          return;
         }
+
+        setMovies(data.Search || []);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Network error:", error);
       }
     };
     fetchMovies();
   }, []);
-  const firstTwoMovies = [movies[0], movies[1]];
-  const testMovies = movies[4];
-  console.log(testMovies);
-  const scrollRef = useRef(null);
-  const scrollRef1 = useRef(null);
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 900;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
+  useEffect(() => {
+    // Ensure we check scroll when movies are updated
+    setTimeout(() => {
+      Object.keys(scrollRefs).forEach((key) => checkScroll(key));
+    }, 500);
+  }, [movies]);
+  useEffect(() => {
+    const handleResize = () => {
+      Object.keys(scrollRefs).forEach((key) => checkScroll(key));
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Run immediately after mounting
+    Object.keys(scrollRefs).forEach((key) => checkScroll(key));
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const firstTwoMovies = movies.length >= 2 ? [movies[0], movies[1]] : [];
+
+  const testMovies = movies.length > 4 ? movies[4] : null;
+
+  const scrollRefs = {
+    section1: useRef(null),
+    section2: useRef(null),
   };
-  const scroll1 = (direction) => {
-    if (scrollRef1.current) {
-      const scrollAmount = 900;
-      scrollRef1.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
+
+  const [canScroll, setCanScroll] = useState({
+    section1: { left: false, right: true },
+    section2: { left: false, right: true },
+  });
+
+  const scroll = (refKey, direction) => {
+    const scrollAmount = 900;
+    const ref = scrollRefs[refKey];
+
+    if (ref.current) {
+      ref.current.scrollBy({
+        left: direction === "right" ? scrollAmount : -scrollAmount,
         behavior: "smooth",
       });
+
+      setTimeout(() => checkScroll(refKey), 300); // Delay to allow smooth scrolling
     }
   };
 
+  // Generalized Scroll Check
+  const checkScroll = (refKey) => {
+    const ref = scrollRefs[refKey];
+
+    if (ref.current) {
+      setCanScroll((prev) => ({
+        ...prev,
+        [refKey]: {
+          left: ref.current.scrollLeft > 0,
+          right:
+            ref.current.scrollLeft <
+            ref.current.scrollWidth - ref.current.clientWidth,
+        },
+      }));
+    }
+  };
+
+  // Run checkScroll on mount and resize
+  useEffect(() => {
+    Object.keys(scrollRefs).forEach((key) => checkScroll(key));
+
+    const handleResize = () => {
+      Object.keys(scrollRefs).forEach((key) => checkScroll(key));
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   return (
     <>
       <header>
@@ -186,7 +239,7 @@ const Home = () => {
           <div className="flex gap-2 mt-8">
             <img
               className="h-[40px] w-[40px] rounded-full"
-              src="\src\assets\prof.jpg"
+              src={profImage}
               alt=""
             />
             <div>
@@ -197,33 +250,36 @@ const Home = () => {
 
           <div className="relative flex mt-8 group">
             <div
-              ref={scrollRef}
-              className=" flex overflow-x-auto gap-6 scrollbar-hide"
+              ref={scrollRefs.section1}
+              className="flex overflow-x-auto gap-6 scrollbar-hide"
             >
-              {movies.map((movie, index) => {
-                return (
-                  <div key={index}>
-                    <img
-                      className="min-h-[285px] min-w-[190px]"
-                      src={movie.Poster}
-                      alt={movie.Title}
-                    />
-                  </div>
-                );
-              })}
+              {movies.map((movie, index) => (
+                <div key={index}>
+                  <img
+                    className="min-h-[285px] min-w-[190px]"
+                    src={movie.Poster}
+                    alt={movie.Title}
+                  />
+                </div>
+              ))}
             </div>
-            <button
-              onClick={() => scroll("right")}
-              className="opacity-0 group-hover:opacity-90 transition-opacity absolute right-0 bg-[#282828] text-white px-2 h-full"
-            >
-              <i className=" fa-solid fa-chevron-right"></i>
-            </button>
-            <button
-              onClick={() => scroll("left")}
-              className="opacity-0 group-hover:opacity-50 transition-opacity absolute left-0  bg-[#282828] text-white px-2 h-full"
-            >
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
+
+            {canScroll.section1.right && (
+              <button
+                onClick={() => scroll("section1", "right")}
+                className="opacity-0 group-hover:opacity-90 transition-opacity absolute right-0 bg-[#282828] text-white px-2 h-full"
+              >
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            )}
+            {canScroll.section1.left && (
+              <button
+                onClick={() => scroll("section1", "left")}
+                className="opacity-0 group-hover:opacity-90 transition-opacity absolute left-0 bg-[#282828] text-white px-2 h-full"
+              >
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+            )}
           </div>
         </section>
         <section className="mt-8 py-10">
@@ -240,7 +296,7 @@ const Home = () => {
               <div className="flex items-center gap-4 mb-4">
                 <img
                   className="h-[40px] w-[40px] rounded-full"
-                  src="\src\assets\prof.jpg"
+                  src={profImage}
                   alt=""
                 />
                 <p className="text-xl font-bold">Pratik Grx</p>
@@ -281,42 +337,65 @@ const Home = () => {
             </div>
           </div>
           <div className="relative flex mt-12 group">
-          <div ref={scrollRef1} className="flex overflow-x-auto gap-6 scrollbar-hide">
-                  {movies.map((movie,index)=>{
-                    return(
-                      <div key={index} className="relative min-h-[180px] min-w-[380px] rounded-xl px-4 py-4 flex flex-col justify-between" style={{
-                        backgroundImage: `
-                       linear-gradient(to right, rgba(16, 16, 16,0.99), rgba(0,0,0,0.6), rgba(47, 45, 46,1)),
-                       url(${movie?.Poster})
-                     `,
-                        backgroundPosition: "top",
-                      }}>
-                    <p className="text-[#898888]">{movie.Year} | 32min</p>
-                    <h5 className="text-xl font-bold">{movie.Title}</h5>
-                    <p className="text-[#898888] text-lg">(Season-1)</p> 
-                    <button className="bg-[#6E6E6E] py-2 font-bold rounded-lg">Watch Now</button>
-                    <p className="absolute right-[-4px] top-[-4px] px-8 py-2 bg-white rounded-tl-none rounded-tr-xl rounded-br-none rounded-bl-xl text-lg font-bold text-[#5E5C5D]">Trending Today</p>
-                  </div>
-                    )
-                    
-                  })}
-            
-          </div>
-          <button
-              onClick={() => scroll1("right")}
-              className="opacity-0 group-hover:opacity-90 transition-opacity absolute right-0 bg-[#282828] text-white px-2 h-full"
+            <div
+              ref={scrollRefs.section2}
+              className="flex overflow-x-auto gap-6 scrollbar-hide"
             >
-              <i className=" fa-solid fa-chevron-right"></i>
-            </button>
-            <button
-              onClick={() => scroll1("left")}
-              className="opacity-0 group-hover:opacity-90 transition-opacity absolute left-0  bg-[#282828] text-white px-2 h-full"
-            >
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
+              {movies.map((movie, index) => (
+                <div
+                  key={index}
+                  className="relative min-h-[180px] min-w-[380px] rounded-xl px-4 py-4 flex flex-col justify-between"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, rgba(16, 16, 16,0.99), rgba(0,0,0,0.6), rgba(47, 45, 46,1)), url(${movie?.Poster})`,
+                    backgroundPosition: "top",
+                  }}
+                >
+                  <p className="text-[#898888]">{movie.Year} | 32min</p>
+                  <h5 className="text-xl font-bold">{movie.Title}</h5>
+                  <p className="text-[#898888] text-lg">(Season-1)</p>
+                  <button className="bg-[#6E6E6E] py-2 font-bold rounded-lg">
+                    Watch Now
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {canScroll.section2.right && (
+              <button
+                onClick={() => scroll("section2", "right")}
+                className="opacity-0 group-hover:opacity-90 transition-opacity absolute right-0 bg-[#282828] text-white px-2 h-full"
+              >
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            )}
+            {canScroll.section2.left && (
+              <button
+                onClick={() => scroll("section2", "left")}
+                className="opacity-0 group-hover:opacity-90 transition-opacity absolute left-0 bg-[#282828] text-white px-2 h-full"
+              >
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+            )}
           </div>
         </section>
       </main>
+      <footer className="px-12 h-[600px] flex justify-center items-center bg-black text-white">
+        <div>
+          <div className="text-center w-full">
+           <p> <i class="text-5xl mb-8 text-white fa-solid fa-flag-checkered"></i></p>
+          </div>
+          <h5 className="text-4xl text-center font-bold mb-4">That's it for today.</h5>
+          <p className="text-center text-lg mb-4">
+            Didn't find something to watch yet?We got you. Try one of these
+            options instead:
+          </p>
+          <div className="flex justify-center gap-6">
+            <button className="bg-stone-500 px-2 py-2 rounded-lg">Check What's new</button>
+            <button className="bg-stone-500 px-2 py-2 rounded-lg">Browse and filter</button>
+          </div>
+          <p className="text-blue-500 text-lg text-center mt-6">Show old recommendations</p>
+        </div>
+      </footer>
     </>
   );
 };
