@@ -4,6 +4,7 @@ import { IoLogoOctocat } from "react-icons/io5";
 import { MdDashboardCustomize } from "react-icons/md";
 import { FaRegUser } from "react-icons/fa";
 import { TbSettingsAutomation } from "react-icons/tb";
+import Logout from "./BtnLogout";
 const Sidebar = () => {
   return (
     <div className="px-4 h-screen flex flex-col">
@@ -42,7 +43,7 @@ const Sidebar = () => {
             <Link to="/movie-app/dashboard/support">Support</Link>
           </li>
           <li className="bg-stone-200 px-3 py-2 text-xl rounded-lg">
-            <Link to="/movie-app/dashboard/logout">Logout</Link>
+            <Logout/>
           </li>
         </ul>
       </div>

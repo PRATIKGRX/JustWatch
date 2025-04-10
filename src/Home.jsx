@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import { useEffect, useState, useRef } from "react";
 import profImage from "./assets/prof.jpg";
-import { useNavigate } from 'react-router-dom';
+import BTN from "./components/BtnLogin";
 const Home = () => {
   const today = new Date();
   const day = today.getDate();
@@ -121,14 +121,7 @@ const Home = () => {
   }, []);
 
 
-  const NavigateButton = () => {
-    const navigate = useNavigate();  // Call useNavigate to get the navigate function
   
-    const handleNavigation = () => {
-      navigate('/about');  // Use navigate function to redirect to '/about' route
-    };
-
-  }
   return (
     <>
       <header>
@@ -156,7 +149,7 @@ const Home = () => {
               />
               <i className="absolute left-2 top-3 text-[#B4B3B0] fa-solid fa-magnifying-glass"></i>
             </div>
-            <button onClick={handleNavigation} className="bg-[#3A3A3A] rounded-sm px-4">Sign In</button>
+            <BTN/>
             <button>
               <i className="fa-solid fa-bars"></i>
             </button>
