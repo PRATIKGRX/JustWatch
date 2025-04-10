@@ -21,7 +21,7 @@ const Sidebar = () => {
             <Link to="/movie-app/dashboard/users"><p className="flex items-center gap-2"><FaRegUser />User Management</p></Link>
           </li>
           <li className="bg-stone-200 px-3 py-2 text-xl rounded-lg">
-            <Link to="/movie-app/dashboard/settings"><p className="flex items-center gap-2"><TbSettingsAutomation />Settings</p></Link>
+            <Link to="/movie-app/dashboard/setting"><p className="flex items-center gap-2"><TbSettingsAutomation />Settings</p></Link>
           </li>
           <li className="bg-stone-200 px-3 py-2 text-xl rounded-lg">
             <Link to="/movie-app/dashboard/content"><p className="flex items-center gap-2">Content Management</p></Link>
