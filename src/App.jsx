@@ -10,15 +10,30 @@ import LoginPage from './components/LoginPage';
 import { AuthProvider, useAuthContext } from './components/Authentication';
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuthContext();
+  const { user } = useAuthContext();
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <Routes>
       <Route path="/movie-app/" element={<Home />} />
-      <Route path="/movie-app/login" element={<LoginPage />} />
-      <Route path="/movie-app/dashboard" element={isAuthenticated ? <DashboardPage /> : <Navigate to="/movie-app/login" />} />
-      <Route path="/movie-app/dashboard/users" element={isAuthenticated ? <UserManagement /> : <Navigate to="/movie-app/login" />} />
-      <Route path="/movie-app/dashboard/setting" element={isAuthenticated ? <Setting /> : <Navigate to="/movie-app/login" />} />
+      <Route path="/movie-app/login" element={user ? <Navigate to="/movie-app/dashboard" /> : <LoginPage />} />
+
+      {/* Routes accessible to both admin and user */}
+      <Route
+        path="/movie-app/dashboard"
+        element={user ? <DashboardPage /> : <Navigate to="/movie-app" />} // All users can access the main dashboard page
+      />
+      
+      {/* Admin-only routes */}
+      <Route
+        path="/movie-app/dashboard/users"
+        element={user ? <UserManagement /> : <Navigate to="/movie-app/dashboard" />} // Admin can access user management
+      />
+      <Route
+        path="/movie-app/dashboard/setting"
+        element={isAdmin ? <Setting /> : <Navigate to="/movie-app/dashboard" />} // Admin can access settings
+      />
     </Routes>
   );
 }

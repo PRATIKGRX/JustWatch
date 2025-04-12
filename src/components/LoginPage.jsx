@@ -9,13 +9,13 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const success = login(username, password);
-    if (success) {
-      navigate('/movie-app/dashboard'); 
+    const result = await login(username, password);
+    if (result.success) {
+      navigate("/movie-app/dashboard"); // Redirect to dashboard on success
     } else {
-      setError('Invalid username or password'); 
+      setError(result.message); // Show error if login fails
     }
   };
 

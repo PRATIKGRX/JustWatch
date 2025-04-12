@@ -385,7 +385,7 @@ const Home = () => {
       <footer className="px-12 h-[600px] flex justify-center items-center bg-black text-white">
         <div>
           <div className="text-center w-full">
-            <p> <i class="text-5xl mb-8 text-white fa-solid fa-flag-checkered"></i></p>
+            <p> <i className="text-5xl mb-8 text-white fa-solid fa-flag-checkered"></i></p>
           </div>
           <h5 className="text-4xl text-center font-bold mb-4">That's it for today.</h5>
           <p className="text-center text-lg mb-4">
